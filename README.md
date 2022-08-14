@@ -1,6 +1,6 @@
 # Dave
 
-MORE DETAILS [here](https://gainful-power-e3e.notion.site/Dave-Research-Thoughts-aa34889588f74158bcaa0400b3b4889f)
+MORE DETAILS ON [THIS](https://gainful-power-e3e.notion.site/Dave-Research-Thoughts-aa34889588f74158bcaa0400b3b4889f) NOTION PAGE
 
 ### Folder/File Info
 - *app/src* -> All code besides notebooks go here
@@ -20,7 +20,7 @@ MORE DETAILS [here](https://gainful-power-e3e.notion.site/Dave-Research-Thoughts
 - *setup.py* -> Python script run to setup Dave server
 
 ------------------------------------
-* NB: For each main folder besides api & assests, code should be put into function
+**NB**: For each main folder besides api & assests, code should be put into function
     specific folders.
     E.g. All database query code for gdp will go to the folder
-        *app/src/models/indicator/gdp*
+        ***app/src/models/indicator/gdp***
