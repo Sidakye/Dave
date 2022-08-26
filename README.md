@@ -14,6 +14,7 @@ MORE DETAILS ON [THIS](https://gainful-power-e3e.notion.site/Dave-Research-Thoug
 - *data/* -> All excel, csv, etc. files that contain data go into this folder
 - *notebooks/* -> All notebooks used for training models are saved in this folder
 - *saved_models/* -> All saved models that the api uses will be saved here
+- *old_code/* -> All the code that existed before restructuring is in here
 ------------------------------------
 - *requirements.txt* -> All required libraries & their versions are saved here
 - *README.md* -> File with overview of Dave & other details
