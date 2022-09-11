@@ -1,21 +1,33 @@
-ALL_GDP_TEST = [{
-        'country_id': 84,
-        'country_name': 'Ghana',
-        'gdp_all': [{ 'Year': 2019, 'GDP': 23440005667.0054613},
-                    { 'Year': 2020, 'GDP': 235507895667.001129}]
-    },
-    {
-        'country_id': 122,
-        'country_name': 'United States',
-        'gdp_all': [{ 'Year': 2020, 'GDP': 23440005667.0054613},
-                    { 'Year': 2021, 'GDP': 235507895667.001129}]
-    },
-    {
-        'country_id': 100,
-        'country_name': 'Nigeria',
-        'gdp_all': [{ 'Year': 2021, 'GDP': 23440005667.0054613},
-                    { 'Year': 2022, 'GDP': 235507895667.001129}]
-    }]
+from os import error
+from ..models.gdp_models import *
 
-def getAllGdp():
-    return ALL_GDP_TEST
+def use_all_gdp():
+    data = []
+    try:
+        countries = get_all_countries()
+        if len(countries) > 0:
+            for country in countries:
+                values = get_gdp_by_country_name(country[0])
+
+                country_dict = {
+                    'country_id': country[0],
+                    'country_name': country[1],
+                    'gdp_actual': [],
+                    'gdp_predict': []
+                }
+
+                for value in values:
+                    country_dict['gdp_actual'].append({
+                        'Year': value[3], 'GDP': value[5]
+                    })
+                    country_dict['gdp_predict'].append({
+                        'Year': value[3], 'GDP': value[6]
+                    })
+                
+                data.append(country_dict)
+        else:
+            countries = None
+    except error as e:
+        print('Failed to get all gdp', e)
+    
+    return data

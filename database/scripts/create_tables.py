@@ -2,7 +2,7 @@ import sqlite3
 import os
 
 # constants 
-database = r"./database/test.db"
+database = r"../db/test.db"
 
 sql_create_countries_table = """ CREATE TABLE IF NOT EXISTS COUNTRIES (
                                 country_id INTEGER NOT NULL PRIMARY KEY,

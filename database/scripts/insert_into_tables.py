@@ -3,7 +3,7 @@ import os
 import pandas as pd
 
 # CONSTANTS
-DATABASE = r"./database/test.db"
+DATABASE = r"../db/test.db"
 GDP_TABLE = r"GDP"
 COUNTRIES_TABLE = r"COUNTRIES"
 INFLATION_TABLE = r"INFLATION"
