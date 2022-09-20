@@ -87,3 +87,40 @@ def get_all_countries() -> list:
 
     close_connection(conn)
     return countries
+
+def get_country_details_by_name(name: str) -> tuple:
+    country = None
+    try:
+        conn = create_connection(DATABASE)
+        cur = conn.cursor()
+        query = '''SELECT * FROM COUNTRIES
+                       WHERE country_name = ?'''
+        cur.execute(query, (name,))
+
+        country = cur.fetchone()
+    except error as e:
+        print('Failed to get country details', e)
+
+    close_connection(conn)
+    return country
+
+def insert_new_prediction(country_details: tuple, year: int, prediction: float):
+    try:
+        conn = create_connection(DATABASE)
+        cur = conn.cursor()
+
+        query = ''' INSERT INTO GDP(country_id, country_name,
+                                    year_, income_level,
+                                    gdp_predict)
+                VALUES(?,?,?,?,?) '''
+        data = (country_details[0], country_details[1],
+                year, country_details[2], prediction)
+
+        cur.execute(query, data)
+        conn.commit()
+
+        print(cur.lastrowid)
+        close_connection(conn)
+    except error as e:
+        print('Failed to insert prediction into database', e)
+        
