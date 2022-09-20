@@ -8,10 +8,10 @@ GDP_TABLE = r"GDP"
 COUNTRIES_TABLE = r"COUNTRIES"
 INFLATION_TABLE = r"INFLATION"
 UNEMPLOYMENT_TABLE= r"UNEMPLOYMENT"
-EXCEL_FILE = r"./data/gdp/gdp_data_complete.xlsx"
+EXCEL_FILE = r"../../data/gdp/gdp_data_complete.xlsx"
 COUNTRIES_SHEET_NAME = r"countries n ids"
 GDP_DATA_SHEET_NAME = r"data w null"
-EXCEL_FILE_V2 = r"./data/gdp/gdp_data_complete_v2.xlsx"
+EXCEL_FILE_V2 = r"../../data/gdp/gdp_data_complete_v2.xlsx"
 INCOME_LEVEL_SHEET_NAME = r"data shift w null"
 
 def open_excel_as_dataframe(excel_file, sheet_name):

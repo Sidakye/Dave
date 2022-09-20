@@ -1,5 +1,6 @@
 import sqlite3
 from os import error
+import sys
 
 DATABASE = r"../../../database/db/test.db"
 

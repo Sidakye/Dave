@@ -1,9 +1,5 @@
-from flask import Flask, jsonify
+from flask import Flask, jsonify, request
 from ..services.gdp_services import *
-
-BASE_ROUTE_GDP = '/gdp'
-
-use_all_gdp()
 
 app = Flask(__name__)
 
@@ -11,21 +7,26 @@ app = Flask(__name__)
 def hello_world():
     return 'Dave GDP Forecast'
 
-@app.route(('/gdp/all'), methods=['GET'])
-def gdpAll():
-    data = use_all_gdp()
+@app.route('/gdp/one/')
+def gdpOneByName():
+    country_name = request.args.get('country_name')
 
-    if data != None and len(data) > 0:
+    payload = None
+
+    if country_name != None:
+        data = use_gdp_by_country_name(country_name)
+
         payload = {
             'message': 'success',
             'code': 200,
             'body': data
         }
     else:
+        data = use_gdp_by_country_name('Aruba')
         payload = {
-            'message': 'failed',
-            'code': 404,
-            'body': None
+            'message': 'success: no country selected, using default',
+            'code': 200,
+            'body': data
         }
 
     return jsonify(payload)
