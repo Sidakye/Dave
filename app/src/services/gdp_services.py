@@ -1,5 +1,5 @@
-from os import error
 import sys
+from os import path
 from ..models.gdp_models import *
 from ..models.inflation_models import *
 from ..models.unemployment_models import *
@@ -7,54 +7,75 @@ from keras.models import load_model
 from sklearn.preprocessing import StandardScaler
 import pandas as pd
 
-MODEL_PATH_DICT= {
-    'low': '../../../saved_models/gdp/v1/low_income_v1.h5',
-    'lower-middle': '../../../saved_models/gdp/v1/low_mid_income_v1.h5',
-    'upper-middle': '../../../saved_models/gdp/v1/upp_mid_income_v1.h5',
-    'high': '../../../saved_models/gdp/v1/high_income_v1.h5'
+# Resolve paths relative to this file so the service works when launched from repo root
+BASE_DIR = path.abspath(path.join(path.dirname(__file__), '..', '..', '..'))
+MODEL_PATH_DICT = {
+    'low': path.join(BASE_DIR, 'saved_models', 'gdp', 'v1', 'low_income_v1.h5'),
+    'lower-middle': path.join(BASE_DIR, 'saved_models', 'gdp', 'v1', 'low_mid_income_v1.h5'),
+    'upper-middle': path.join(BASE_DIR, 'saved_models', 'gdp', 'v1', 'upp_mid_income_v1.h5'),
+    'high': path.join(BASE_DIR, 'saved_models', 'gdp', 'v1', 'high_income_v1.h5')
 }
-DATA_PATH = '../../../data/gdp/gdp_data_complete_v2.xlsx';
+
+DATA_PATH = path.join(BASE_DIR, 'data', 'gdp', 'gdp_data_complete_v2.xlsx')
+
+# Simple caches to avoid re-loading models/scalers on every request
+_MODEL_CACHE = {}
+_SCALER_CACHE = {}
 
 def get_scaler(income_level: str):
+    if income_level in _SCALER_CACHE:
+        return _SCALER_CACHE[income_level]
+
+    if not path.exists(DATA_PATH):
+        raise FileNotFoundError(f"Data file not found: {DATA_PATH}")
+
     data = pd.read_excel(DATA_PATH, sheet_name='data shift wout null', index_col='Year')
     df = data[data['IncomeLevel'] == income_level]
 
     scY = StandardScaler()
-    scY.fit_transform(df['GDP'].values.reshape(-1,1))
-    
+    scY.fit(df['GDP'].values.reshape(-1, 1))
+    _SCALER_CACHE[income_level] = scY
     return scY
 
 
 def make_prediction_by_name(country_name: str, prev_year: int, income_level: str):
     prediction = None
-    try:        
-        model = load_model(MODEL_PATH_DICT[income_level])
-        
+    try:
+        # load model from cache or disk
+        model_path = MODEL_PATH_DICT.get(income_level)
+        if model_path is None or not path.exists(model_path):
+            raise FileNotFoundError(f"Model for income level '{income_level}' not found at {model_path}")
+
+        if income_level in _MODEL_CACHE:
+            model = _MODEL_CACHE[income_level]
+        else:
+            model = load_model(model_path)
+            _MODEL_CACHE[income_level] = model
+
         inflation = get_inflation_by_year(country_name, prev_year)
         unemployment = get_unemployment_by_year(country_name, prev_year)
 
-        if inflation == None:
+        if inflation is None:
             print('Cannot forecast, inflation data unavailable', file=sys.stderr)
-            return prediction
+            return None
 
-        if unemployment == None:
+        if unemployment is None:
             print('Cannot forecast, unemployment data unavailable', file=sys.stderr)
-            return prediction
-        
+            return None
+
+        # Expecting scalars or arrays; ensure the shape matches what the model expects
         unscaled_prediction = model.predict(((inflation, unemployment),))
 
-        if unscaled_prediction != None:
+        if unscaled_prediction is not None:
             scY = get_scaler(income_level)
-            pred_df = pd.DataFrame({
-                'Year': [prev_year],
-                'GDP': [float(unscaled_prediction[0][0])]
-                })
-            pred_df = pred_df.set_index('Year')
-            prediction = scY.inverse_transform(pred_df)
-
-            return prediction[0][0]
-    except error as e:
-        print('Failed to make prediction', e)
+            # keras returns numpy arrays; extract scalar value
+            pred_value = float(unscaled_prediction[0][0])
+            # inverse transform expects 2D array
+            pred_unscaled = scY.inverse_transform([[pred_value]])
+            return float(pred_unscaled[0][0])
+    except Exception as e:
+        print('Failed to make prediction', e, file=sys.stderr)
+        return None
 
 def use_gdp_by_country_name(name: str) -> dict:
     data = {
