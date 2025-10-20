@@ -20,6 +20,19 @@ MORE DETAILS ON [THIS](https://gainful-power-e3e.notion.site/Dave-Research-Thoug
 - *README.md* -> File with overview of Dave & other details
 - *setup.py* -> Python script run to setup Dave server
 
+## Running the David AI API
+
+This project includes a FastAPI-based endpoint at `app/src/api/david_api.py`.
+
+To run locally (from the repository root):
+
+```powershell
+python -m pip install -r requirements.txt
+uvicorn app.src.api.david_api:app --reload --port 8000
+```
+
+Then open http://127.0.0.1:8000/docs for the interactive API docs.
+
 ------------------------------------
 **NB**: For each main folder besides api & assests, code should be put into function
     specific folders.
